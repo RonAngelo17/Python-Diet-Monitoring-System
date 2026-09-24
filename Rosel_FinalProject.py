@@ -4,8 +4,9 @@ import openpyxl as op
 
 window = tk.Tk()
 window.title("Diet Monitoring System")
-window.resizable(False, False)
-window.configure(bg="#Fdfdfd")
+window.geometry("1280x720")
+window.minsize(1050, 600)
+window.configure(bg="#F4F6F8")
 
 def display():
     workbook = op.load_workbook("Rosel_Database.xlsx")
@@ -244,41 +245,197 @@ def delete():
     messagebox.showinfo("Success","Record deleted successfully!")
     display()
 
-#GUI
-header_frame = tk.Frame(window,bg="#2E7D32",height=70)
-header_frame.grid(row=0,column=0,columnspan=2,sticky="nsew")
+# =========================
+# GUI DESIGN
+# =========================
 
-title = tk.Label(header_frame,text="🥗 DIET MONITORING SYSTEM",font=("Arial", 22, "bold"),bg="#2E7D32",fg="white")
-title.pack(pady=15)
+# Configure the main window grid
+window.grid_rowconfigure(1, weight=1)
+window.grid_columnconfigure(1, weight=1)
 
-sidebar_frame = tk.Frame(window,bg="#A5D6A7",width=190)
-sidebar_frame.grid(row=1,column=0,sticky="ns")
+# Modern Treeview styling
+style = ttk.Style()
+style.theme_use("clam")
+
+style.configure(
+    "Treeview",
+    background="white",
+    foreground="#263238",
+    rowheight=34,
+    fieldbackground="white",
+    font=("Arial", 10)
+)
+
+style.configure(
+    "Treeview.Heading",
+    background="#2E7D32",
+    foreground="white",
+    font=("Arial", 10, "bold"),
+    padding=8
+)
+
+style.map(
+    "Treeview",
+    background=[("selected", "#C8E6C9")],
+    foreground=[("selected", "#1B5E20")]
+)
+
+# Header
+header_frame = tk.Frame(window, bg="#2E7D32", height=78)
+header_frame.grid(row=0, column=0, columnspan=2, sticky="ew")
+header_frame.grid_propagate(False)
+
+title = tk.Label(
+    header_frame,
+    text="🥗  DIET MONITORING SYSTEM",
+    font=("Arial", 22, "bold"),
+    bg="#2E7D32",
+    fg="white"
+)
+title.pack(expand=True)
+
+# Sidebar
+sidebar_frame = tk.Frame(window, bg="#E8F5E9", width=230)
+sidebar_frame.grid(row=1, column=0, sticky="nsw")
 sidebar_frame.grid_propagate(False)
 
-main_frame = tk.Frame(window,bg="white")
-main_frame.grid(row=1,column=1,sticky="nsew",padx=10,pady=10)
+sidebar_title = tk.Label(
+    sidebar_frame,
+    text="MENU",
+    font=("Arial", 14, "bold"),
+    bg="#E8F5E9",
+    fg="#1B5E20"
+)
+sidebar_title.pack(pady=(28, 22))
 
-main_frame.grid_rowconfigure(0, weight=1)
+button_style = {
+    "font": ("Arial", 11, "bold"),
+    "width": 18,
+    "height": 2,
+    "bd": 0,
+    "relief": "flat",
+    "cursor": "hand2",
+    "activeforeground": "white"
+}
+
+add_btn = tk.Button(
+    sidebar_frame,
+    text="＋  ADD",
+    bg="#43A047",
+    fg="white",
+    activebackground="#2E7D32",
+    command=new_window,
+    **button_style
+)
+add_btn.pack(fill="x", padx=22, pady=8)
+
+update_btn = tk.Button(
+    sidebar_frame,
+    text="✎  UPDATE",
+    bg="#1E88E5",
+    fg="white",
+    activebackground="#1565C0",
+    command=update,
+    **button_style
+)
+update_btn.pack(fill="x", padx=22, pady=8)
+
+delete_btn = tk.Button(
+    sidebar_frame,
+    text="✕  DELETE",
+    bg="#E53935",
+    fg="white",
+    activebackground="#B71C1C",
+    command=delete,
+    **button_style
+)
+delete_btn.pack(fill="x", padx=22, pady=8)
+
+sidebar_note = tk.Label(
+    sidebar_frame,
+    text="Manage your daily food\nand calorie records",
+    font=("Arial", 9),
+    bg="#E8F5E9",
+    fg="#546E7A",
+    justify="center"
+)
+sidebar_note.pack(side="bottom", pady=25)
+
+# Main content area
+main_frame = tk.Frame(window, bg="#F4F6F8")
+main_frame.grid(row=1, column=1, sticky="nsew", padx=(12, 18), pady=14)
+
+main_frame.grid_rowconfigure(1, weight=1)
 main_frame.grid_columnconfigure(0, weight=1)
 
-add_btn = tk.Button(sidebar_frame,text="ADD",bg="#4CAF50",fg="white",font=("Arial", 12, "bold"),width=15,height=2,command=new_window)
-add_btn.grid(row=0,column=0,padx=15,pady=(40, 10))
+table_title = tk.Label(
+    main_frame,
+    text="Food Records",
+    font=("Arial", 16, "bold"),
+    bg="#F4F6F8",
+    fg="#263238",
+    anchor="w"
+)
+table_title.grid(row=0, column=0, columnspan=2, sticky="ew", pady=(0, 10))
 
-update_btn = tk.Button(sidebar_frame,text="UPDATE",bg="#2196F3",fg="white",font=("Arial", 12, "bold"),width=15,height=2,command=update)
-update_btn.grid(row=1,column=0,padx=15,pady=10)
+table_frame = tk.Frame(main_frame, bg="white", bd=1, relief="solid")
+table_frame.grid(row=1, column=0, columnspan=2, sticky="nsew")
 
-delete_btn = tk.Button(sidebar_frame,text="DELETE",bg="#F44336",fg="white",font=("Arial", 12, "bold"),width=15,height=2,command=delete)
-delete_btn.grid(row=2,column=0,padx=15,pady=10)
+table_frame.grid_rowconfigure(0, weight=1)
+table_frame.grid_columnconfigure(0, weight=1)
 
-tree = ttk.Treeview(main_frame, columns=("ID","Food Name","Meal Type","Serving Size","No. of Servings","Calories","Total Calories","Date"), show="headings")
-for headings in ("ID","Food Name","Meal Type","Serving Size","No. of Servings","Calories","Total Calories","Date"):
-    tree.heading(headings, text=headings)
-    tree.column(headings, width=130)
+columns = (
+    "ID", "Food Name", "Meal Type", "Serving Size",
+    "No. of Servings", "Calories", "Total Calories", "Date"
+)
+
+tree = ttk.Treeview(
+    table_frame,
+    columns=columns,
+    show="headings",
+    selectmode="browse"
+)
+
+column_widths = {
+    "ID": 55,
+    "Food Name": 160,
+    "Meal Type": 110,
+    "Serving Size": 115,
+    "No. of Servings": 125,
+    "Calories": 95,
+    "Total Calories": 125,
+    "Date": 110
+}
+
+for heading in columns:
+    tree.heading(heading, text=heading)
+    tree.column(
+        heading,
+        width=column_widths[heading],
+        minwidth=column_widths[heading],
+        anchor="center"
+    )
+
 tree.grid(row=0, column=0, sticky="nsew")
 
-scrollbar = ttk.Scrollbar(main_frame,orient="vertical",command=tree.yview)
-tree.configure(yscrollcommand=scrollbar.set)
-scrollbar.grid(row=0,column=1,sticky="ns")
+vertical_scrollbar = ttk.Scrollbar(
+    table_frame,
+    orient="vertical",
+    command=tree.yview
+)
+vertical_scrollbar.grid(row=0, column=1, sticky="ns")
+
+horizontal_scrollbar = ttk.Scrollbar(
+    table_frame,
+    orient="horizontal",
+    command=tree.xview
+)
+horizontal_scrollbar.grid(row=1, column=0, sticky="ew")
+
+tree.configure(
+    yscrollcommand=vertical_scrollbar.set,
+    xscrollcommand=horizontal_scrollbar.set
+)
 
 display()
 window.mainloop()
